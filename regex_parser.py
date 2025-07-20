@@ -1,7 +1,7 @@
 # Kreirao: timyx
 
 class TipTokena:
-    """Definisanje tipova tokena koje lexer može prepoznati"""
+    """Definisanje tipova tokena koje lexer moze prepoznati"""
     KARAKTER = "KARAKTER"
     TACKA = "TACKA"
     ZVJEZDICA = "ZVJEZDICA"
@@ -13,7 +13,7 @@ class TipTokena:
     KRAJ = "KRAJ"
 
 class Token:
-    """Reprezencija jednog tokena s tipom i vrijednošću"""
+    """Reprezencija jednog tokena s tipom i vrijednoscu"""
     def __init__(self, tip, vrijednost):
         self.tip = tip
         self.vrijednost = vrijednost
@@ -29,94 +29,94 @@ class Lexer:
         self.pozicija = 0
         self.trenutni_karakter = self.regex[0] if regex else None
     
-    def greška(self):
-        """Baca grešku za neočekivani karakter"""
-        raise Exception(f"Neočekivani karakter '{self.trenutni_karakter}' na poziciji {self.pozicija}")
+    def greska(self):
+        """Baca gresku za neocekivani karakter"""
+        raise Exception(f"Neocekivani karakter '{self.trenutni_karakter}' na poziciji {self.pozicija}")
     
-    def pomijeri(self):
-        """Pomjera pokazivač na sljedeći karakter"""
+    def pomjeri(self):
+        """Pomjera pokazivac na sljedeci karakter"""
         self.pozicija += 1
         if self.pozicija >= len(self.regex):
             self.trenutni_karakter = None
         else:
             self.trenutni_karakter = self.regex[self.pozicija]
     
-    def sljedeći_token(self):
-        """Vraća sljedeći token iz regex stringa"""
+    def sljedeci_token(self):
+        """Vraca sljedeci token iz regex stringa"""
         if self.trenutni_karakter is None:
             return Token(TipTokena.KRAJ, None)
         
         if self.trenutni_karakter == '.':
-            self.pomijeri()
+            self.pomjeri()
             return Token(TipTokena.TACKA, '.')
         
         if self.trenutni_karakter == '*':
-            self.pomijeri()
+            self.pomjeri()
             return Token(TipTokena.ZVJEZDICA, '*')
         
         if self.trenutni_karakter == '+':
-            self.pomijeri()
+            self.pomjeri()
             return Token(TipTokena.PLUS, '+')
         
         if self.trenutni_karakter == '?':
-            self.pomijeri()
+            self.pomjeri()
             return Token(TipTokena.UPITNIK, '?')
         
         if self.trenutni_karakter == '|':
-            self.pomijeri()
+            self.pomjeri()
             return Token(TipTokena.VERTIKALNA_CRTA, '|')
         
         if self.trenutni_karakter == '(':
-            self.pomijeri()
+            self.pomjeri()
             return Token(TipTokena.LIJEVA_ZAGRADA, '(')
         
         if self.trenutni_karakter == ')':
-            self.pomijeri()
+            self.pomjeri()
             return Token(TipTokena.DESNA_ZAGRADA, ')')
         
-        # Svi ostali karakteri se tretiraju kao obični karakteri
+        # Svi ostali karakteri se tretiraju kao obicni karakteri
         karakter = self.trenutni_karakter
-        self.pomijeri()
+        self.pomjeri()
         return Token(TipTokena.KARAKTER, karakter)
     
     def tokeniziraj(self):
-        """Vraća listu svih tokena"""
+        """Vraca listu svih tokena"""
         tokeni = []
         while True:
-            token = self.sljedeći_token()
+            token = self.sljedeci_token()
             tokeni.append(token)
             if token.tip == TipTokena.KRAJ:
                 break
         return tokeni
 
-# AST čvorovi za predstavljanje regex stabla
-class ASTČvor:
-    """Bazna klasa za sve AST čvorove"""
+# AST cvorovi za predstavljanje regex stabla
+class ASTCvor:
+    """Bazna klasa za sve AST cvorove"""
     pass
 
-class Karakter(ASTČvor):
-    """Čvor za obične karaktere"""
+class Karakter(ASTCvor):
+    """Cvor za obicne karaktere"""
     def __init__(self, vrijednost):
         self.vrijednost = vrijednost
     
     def __repr__(self):
         return f"Karakter('{self.vrijednost}')"
 
-class TačkaBiloKoji(ASTČvor):
-    """Čvor za . (bilo koji karakter)"""
+class TackaBiloKoji(ASTCvor):
+    """Cvor za . (bilo koji karakter)"""
     def __repr__(self):
-        return "TačkaBiloKoji()"
+        return "TackaBiloKoji()"
 
-class Sekvenca(ASTČvor):
-    """Čvor za sekvencu čvorova (konkatenacija)"""
-    def __init__(self, čvorovi):
-        self.čvorovi = čvorovi
+class Sekvenca(ASTCvor):
+    """Cvor za sekvencu cvorova (konkatenacija)"""
+    def __init__(self, cvorovi):
+        self.cvorovi = cvorovi
     
     def __repr__(self):
-        return f"Sekvenca({self.čvorovi})"
+        return f"Sekvenca({self.cvorovi})"
 
-class Alternativa(ASTČvor):
-    """Čvor za | (alternativa)"""
+class Alternativa(ASTCvor):
+    """Cvor za | (alternativa)"""
     def __init__(self, lijevo, desno):
         self.lijevo = lijevo
         self.desno = desno
@@ -124,22 +124,22 @@ class Alternativa(ASTČvor):
     def __repr__(self):
         return f"Alternativa({self.lijevo}, {self.desno})"
 
-class Kvantifikator(ASTČvor):
-    """Čvor za kvantifikatore (*, +, ?)"""
-    def __init__(self, čvor, tip):
-        self.čvor = čvor
+class Kvantifikator(ASTCvor):
+    """Cvor za kvantifikatore (*, +, ?)"""
+    def __init__(self, cvor, tip):
+        self.cvor = cvor
         self.tip = tip  # '*', '+', ili '?'
     
     def __repr__(self):
-        return f"Kvantifikator({self.čvor}, '{self.tip}')"
+        return f"Kvantifikator({self.cvor}, '{self.tip}')"
 
-class Grupa(ASTČvor):
-    """Čvor za grupisanje ()"""
-    def __init__(self, čvor):
-        self.čvor = čvor
+class Grupa(ASTCvor):
+    """Cvor za grupisanje ()"""
+    def __init__(self, cvor):
+        self.cvor = cvor
     
     def __repr__(self):
-        return f"Grupa({self.čvor})"
+        return f"Grupa({self.cvor})"
 
 class Parser:
     """Parser koji od tokena pravi AST stablo"""
@@ -149,64 +149,64 @@ class Parser:
         self.pozicija = 0
         self.trenutni_token = self.tokeni[0] if tokeni else None
     
-    def greška(self):
-        """Baca grešku za neočekivani token"""
-        raise Exception(f"Neočekivani token {self.trenutni_token}")
+    def greska(self):
+        """Baca gresku za neocekivani token"""
+        raise Exception(f"Neocekivani token {self.trenutni_token}")
     
-    def pojedi_token(self, očekivani_tip):
-        """Konzumira token određenog tipa"""
-        if self.trenutni_token.tip == očekivani_tip:
+    def pojedi_token(self, ocekivani_tip):
+        """Konzumira token odredjenog tipa"""
+        if self.trenutni_token.tip == ocekivani_tip:
             self.trenutni_token = self.tokeni[self.pozicija + 1] if self.pozicija + 1 < len(self.tokeni) else None
             self.pozicija += 1
         else:
-            self.greška()
+            self.greska()
     
     def parsiraj(self):
         """Glavni ulazak u parsiranje - parsira alternativu"""
         rezultat = self.parsiraj_alternativu()
         if self.trenutni_token and self.trenutni_token.tip != TipTokena.KRAJ:
-            self.greška()
+            self.greska()
         return rezultat
     
     def parsiraj_alternativu(self):
-        """Parsira alternativu (najniži prioritet)"""
-        čvor = self.parsiraj_sekvencu()
+        """Parsira alternativu (najnizi prioritet)"""
+        cvor = self.parsiraj_sekvencu()
         
         while self.trenutni_token and self.trenutni_token.tip == TipTokena.VERTIKALNA_CRTA:
             self.pojedi_token(TipTokena.VERTIKALNA_CRTA)
             desno = self.parsiraj_sekvencu()
-            čvor = Alternativa(čvor, desno)
+            cvor = Alternativa(cvor, desno)
         
-        return čvor
+        return cvor
     
     def parsiraj_sekvencu(self):
-        """Parsira sekvencu čvorova (konkatenacija)"""
-        čvorovi = []
+        """Parsira sekvencu cvorova (konkatenacija)"""
+        cvorovi = []
         
         while (self.trenutni_token and 
                self.trenutni_token.tip not in [TipTokena.VERTIKALNA_CRTA, TipTokena.DESNA_ZAGRADA, TipTokena.KRAJ]):
-            čvorovi.append(self.parsiraj_kvantifikator())
+            cvorovi.append(self.parsiraj_kvantifikator())
         
-        if len(čvorovi) == 0:
+        if len(cvorovi) == 0:
             return None
-        elif len(čvorovi) == 1:
-            return čvorovi[0]
+        elif len(cvorovi) == 1:
+            return cvorovi[0]
         else:
-            return Sekvenca(čvorovi)
+            return Sekvenca(cvorovi)
     
     def parsiraj_kvantifikator(self):
         """Parsira kvantifikatore (*, +, ?)"""
-        čvor = self.parsiraj_osnovni()
+        cvor = self.parsiraj_osnovni()
         
         if self.trenutni_token and self.trenutni_token.tip in [TipTokena.ZVJEZDICA, TipTokena.PLUS, TipTokena.UPITNIK]:
             tip_kvantifikatora = self.trenutni_token.vrijednost
             self.pojedi_token(self.trenutni_token.tip)
-            return Kvantifikator(čvor, tip_kvantifikatora)
+            return Kvantifikator(cvor, tip_kvantifikatora)
         
-        return čvor
+        return cvor
     
     def parsiraj_osnovni(self):
-        """Parsira osnovne elemente (karakteri, tačka, grupe)"""
+        """Parsira osnovne elemente (karakteri, tacka, grupe)"""
         if self.trenutni_token.tip == TipTokena.KARAKTER:
             vrijednost = self.trenutni_token.vrijednost
             self.pojedi_token(TipTokena.KARAKTER)
@@ -214,16 +214,16 @@ class Parser:
         
         elif self.trenutni_token.tip == TipTokena.TACKA:
             self.pojedi_token(TipTokena.TACKA)
-            return TačkaBiloKoji()
+            return TackaBiloKoji()
         
         elif self.trenutni_token.tip == TipTokena.LIJEVA_ZAGRADA:
             self.pojedi_token(TipTokena.LIJEVA_ZAGRADA)
-            čvor = self.parsiraj_alternativu()
+            cvor = self.parsiraj_alternativu()
             self.pojedi_token(TipTokena.DESNA_ZAGRADA)
-            return Grupa(čvor)
+            return Grupa(cvor)
         
         else:
-            self.greška()
+            self.greska()
 
 class Evaluator:
     """Evaluira AST stablo protiv ulaznog teksta"""
@@ -233,96 +233,96 @@ class Evaluator:
     
     def odgovara(self, tekst):
         """Provjerava da li regex odgovara bilo kojem dijelu teksta"""
-        # Pokušavamo match na svakoj poziciji u tekstu
+        # Pokusavamo match na svakoj poziciji u tekstu
         for i in range(len(tekst) + 1):
-            if self._pokušaj_match(self.ast, tekst, i) is not None:
+            if self._pokusaj_match(self.ast, tekst, i) is not None:
                 return True
         return False
     
-    def _pokušaj_match(self, čvor, tekst, pozicija):
-        """Pokušava match čvora na određenoj poziciji. Vraća novu poziciju ili None"""
-        if čvor is None:
+    def _pokusaj_match(self, cvor, tekst, pozicija):
+        """Pokusava match cvora na odredjenoj poziciji. Vraca novu poziciju ili None"""
+        if cvor is None:
             return pozicija
         
-        if isinstance(čvor, Karakter):
-            if pozicija < len(tekst) and tekst[pozicija] == čvor.vrijednost:
+        if isinstance(cvor, Karakter):
+            if pozicija < len(tekst) and tekst[pozicija] == cvor.vrijednost:
                 return pozicija + 1
             return None
         
-        elif isinstance(čvor, TačkaBiloKoji):
+        elif isinstance(cvor, TackaBiloKoji):
             if pozicija < len(tekst):
                 return pozicija + 1
             return None
         
-        elif isinstance(čvor, Sekvenca):
+        elif isinstance(cvor, Sekvenca):
             trenutna_pozicija = pozicija
-            for pod_čvor in čvor.čvorovi:
-                rezultat = self._pokušaj_match(pod_čvor, tekst, trenutna_pozicija)
+            for pod_cvor in cvor.cvorovi:
+                rezultat = self._pokusaj_match(pod_cvor, tekst, trenutna_pozicija)
                 if rezultat is None:
                     return None
                 trenutna_pozicija = rezultat
             return trenutna_pozicija
         
-        elif isinstance(čvor, Alternativa):
-            # Pokušavamo lijevi čvor
-            lijevi_rezultat = self._pokušaj_match(čvor.lijevo, tekst, pozicija)
+        elif isinstance(cvor, Alternativa):
+            # Pokusavamo lijevi cvor
+            lijevi_rezultat = self._pokusaj_match(cvor.lijevo, tekst, pozicija)
             if lijevi_rezultat is not None:
                 return lijevi_rezultat
             
-            # Ako lijevi ne uspije, pokušavamo desni
-            return self._pokušaj_match(čvor.desno, tekst, pozicija)
+            # Ako lijevi ne uspije, pokusavamo desni
+            return self._pokusaj_match(cvor.desno, tekst, pozicija)
         
-        elif isinstance(čvor, Kvantifikator):
-            if čvor.tip == '*':
-                return self._match_zvjezdica(čvor.čvor, tekst, pozicija)
-            elif čvor.tip == '+':
-                return self._match_plus(čvor.čvor, tekst, pozicija)
-            elif čvor.tip == '?':
-                return self._match_upitnik(čvor.čvor, tekst, pozicija)
+        elif isinstance(cvor, Kvantifikator):
+            if cvor.tip == '*':
+                return self._match_zvjezdica(cvor.cvor, tekst, pozicija)
+            elif cvor.tip == '+':
+                return self._match_plus(cvor.cvor, tekst, pozicija)
+            elif cvor.tip == '?':
+                return self._match_upitnik(cvor.cvor, tekst, pozicija)
         
-        elif isinstance(čvor, Grupa):
-            return self._pokušaj_match(čvor.čvor, tekst, pozicija)
+        elif isinstance(cvor, Grupa):
+            return self._pokusaj_match(cvor.cvor, tekst, pozicija)
         
         return None
     
-    def _match_zvjezdica(self, čvor, tekst, pozicija):
-        """Match za * kvantifikator (nula ili više)"""
-        # Prvo pokušavamo bez match-a (nula ponavljanja)
+    def _match_zvjezdica(self, cvor, tekst, pozicija):
+        """Match za * kvantifikator (nula ili vise)"""
+        # Prvo pokusavamo bez match-a (nula ponavljanja)
         rezultat = pozicija
         
-        # Zatim pokušavamo što više match-ova
+        # Zatim pokusavamo sto vise match-ova
         while True:
-            novi_rezultat = self._pokušaj_match(čvor, tekst, rezultat)
+            novi_rezultat = self._pokusaj_match(cvor, tekst, rezultat)
             if novi_rezultat is None or novi_rezultat == rezultat:
                 break
             rezultat = novi_rezultat
         
         return rezultat
     
-    def _match_plus(self, čvor, tekst, pozicija):
-        """Match za + kvantifikator (jedno ili više)"""
+    def _match_plus(self, cvor, tekst, pozicija):
+        """Match za + kvantifikator (jedno ili vise)"""
         # Moramo imati barem jedan match
-        rezultat = self._pokušaj_match(čvor, tekst, pozicija)
+        rezultat = self._pokusaj_match(cvor, tekst, pozicija)
         if rezultat is None:
             return None
         
-        # Zatim pokušavamo dodatne match-ove
+        # Zatim pokusavamo dodatne match-ove
         while True:
-            novi_rezultat = self._pokušaj_match(čvor, tekst, rezultat)
+            novi_rezultat = self._pokusaj_match(cvor, tekst, rezultat)
             if novi_rezultat is None or novi_rezultat == rezultat:
                 break
             rezultat = novi_rezultat
         
         return rezultat
     
-    def _match_upitnik(self, čvor, tekst, pozicija):
+    def _match_upitnik(self, cvor, tekst, pozicija):
         """Match za ? kvantifikator (nula ili jedno)"""
-        # Pokušavamo match
-        rezultat = self._pokušaj_match(čvor, tekst, pozicija)
+        # Pokusavamo match
+        rezultat = self._pokusaj_match(cvor, tekst, pozicija)
         if rezultat is not None:
             return rezultat
         
-        # Ako nema match-a, vraćamo originalnu poziciju (nula pojavljivanja)
+        # Ako nema match-a, vracamo originalnu poziciju (nula pojavljivanja)
         return pozicija
 
 def da_li_odgovara(regex, tekst):
@@ -331,10 +331,10 @@ def da_li_odgovara(regex, tekst):
     
     Args:
         regex (str): Regex pattern
-        tekst (str): Tekst za pretraživanje
+        tekst (str): Tekst za pretrazivanje
     
     Returns:
-        bool: True ako regex odgovara, False inače
+        bool: True ako regex odgovara, False inace
     """
     try:
         # Korak 1: Tokenizacija
@@ -350,13 +350,13 @@ def da_li_odgovara(regex, tekst):
         return evaluator.odgovara(tekst)
     
     except Exception as e:
-        print(f"Greška pri parsiranju regex-a '{regex}': {e}")
+        print(f"Greska pri parsiranju regex-a '{regex}': {e}")
         return False
 
 # Testiranje funkcionalnosti
 if __name__ == "__main__":
     # Osnovni testovi
-    test_slučajevi = [
+    test_slucajevi = [
         ("a", "a", True),
         ("a", "b", False),
         (".", "x", True),
@@ -381,14 +381,14 @@ if __name__ == "__main__":
     ]
     
     print("Pokretanje testova...")
-    uspješni = 0
-    ukupno = len(test_slučajevi)
+    uspjesni = 0
+    ukupno = len(test_slucajevi)
     
-    for regex, tekst, očekivano in test_slučajevi:
+    for regex, tekst, ocekivano in test_slucajevi:
         rezultat = da_li_odgovara(regex, tekst)
-        status = "✓" if rezultat == očekivano else "✗"
-        print(f"{status} '{regex}' vs '{tekst}' -> {rezultat} (očekivano: {očekivano})")
-        if rezultat == očekivano:
-            uspješni += 1
+        status = "✓" if rezultat == ocekivano else "✗"
+        print(f"{status} '{regex}' vs '{tekst}' -> {rezultat} (ocekivano: {ocekivano})")
+        if rezultat == ocekivano:
+            uspjesni += 1
     
-    print(f"\nRezultat: {uspješni}/{ukupno} testova prošlo")
+    print(f"\nRezultat: {uspjesni}/{ukupno} testova proslo")
